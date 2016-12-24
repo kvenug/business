@@ -1,0 +1,607 @@
+					 		 ;Screen resol : 1152 864  461, 716
+;Screen resolution settings: 1280 and 960 
+
+; Works on firefox. last pass is needed. AHK should be installed on the system
+;	THIS SCRIPT IS USED TO GENERATE WAYBILLS. WAY BILL INFO SHOULD BE 
+;	TYPED IN waybill.txt file in the format below one bill in one line.
+;		
+;	tin billNumber vehicle billValue Village Quantity(MTS).
+;
+
+
+
+;=============  COMMANDS : WINKEY + E OR P OR S OR X ETC  ==================
+
+#a::
+  SetTitleMatchMode 2
+  SetTitleMatchMode Slow
+  ControlClick, Gmail - Mozilla Firefox, Gmail - Mozilla Firefox
+return
+
+
+#k:: WinMove,CHECK,, 220,220 
+#e::Edit
+#p::Pause
+#s::Suspend
+#w::Run, C:\waybill.txt, max
+#x::ExitApp
+^!r::Reload
+#t::
+Send %A_DD%%A_MM%%A_YYYY%
+Send {TAB}
+return
+
+;======================== WINKEY + C READ BILL INFO FROM waybill.txt, generate and print  ================
+
+#c::  ; to read values from waybill.txt file and to take print
+
+billEntry = 1      ;  line number in waybill.txt    
+While 1
+{ 
+   FileReadLine, bill, waybill.txt, %billEntry%
+   NewStr := RegExReplace(bill, "[ 	][ 	]*", " ")  
+   AutoTrim, On       ;kvg
+   bill =%NewStr%     ;kvg
+
+   if !bill
+      {
+       MsgBox, END OF WAYBILL   
+       return
+      }
+   StringSplit, fields, bill, %A_Space%
+
+   Click WU 25
+   Sleep 300
+   Click 216, 402
+
+   Send {End}           ; place curser in TIN field
+   Send {Shift Down}
+   Send {Home}
+   Send {Shift Up}
+
+;--------
+;fill TIN
+    Send 37
+    Send %fields1%   
+    Send {TAB 2}  
+    KeyWait , z, D   
+    Sleep 200
+
+
+    Send !p   ;read values from last pass
+    Sleep 500
+    Click WU 25
+    Sleep 500
+
+    KeyWait , z, D   
+    Sleep 1000
+
+
+    Send {TAB 5}
+
+;fill invoice number
+    Sleep 500
+    Send %fields4%   
+    Send {TAB}
+
+;fill date
+    Sleep 500
+    Send %A_DD%%A_MM%%A_YYYY%
+    Send {TAB}
+
+
+;-------- tbd-
+  
+
+   Click ,WU, 9
+   Sleep 500
+   Click 252, 580
+   Sleep 500
+   Send {TAB}
+
+;-------- tbd
+
+;fill vehicle
+    Sleep 500
+    Send %fields3%   
+    Send {TAB}
+
+
+;fill value
+    Sleep 500
+    Send %fields5%   
+    Send {TAB 2}
+
+
+;fill village
+    Sleep 500
+    Send %fields2%   
+    Send {TAB 1}
+
+;fill Transporter Name
+    Sleep 500
+    if (fields3 = "AP21U5029")
+    {
+       Send D.JANARDHANA RAO
+    }
+    else if (fields3 = "AP21U8188")
+    {
+       Send C.BRAHMAIAH
+    }
+    else if (fields3 = "AAQ6219")
+    {
+       Send S.S.MODERN RICE MILL
+    }
+    else if (fields3 = "ATQ6616" )
+    {
+       Send K.VENUGOPAL
+    }
+    else if (fields3 = "AP16U6649" )
+    {
+       Send D.MADHUSUDANA RAO
+    }
+    else if (fields3 = "AP26U7797" )
+    {
+       Send D.MADHUSUDANA RAO
+    }
+    else if (fields3 = "AP21W2430" )
+    {
+       Send K.VENUGOPAL
+    }
+    else if (fields3 = "AP21W4939" )
+    {
+       Send K.VENUGOPAL
+    }
+    else if (fields3 = "AP21X1087" )
+    {
+       Send K.VENUGOPAL
+    }
+    else if (fields3 = "AP21TT1249" )
+    {
+       Send K.VENUGOPAL
+    }
+    else
+    {
+       Send lorry_associatoin
+    }
+
+    Send {TAB 4}
+
+;fill quantity
+    Sleep 500
+    Send %fields6%   
+    Send {TAB 4}
+
+;    KeyWait , z, D   
+    Sleep 2000
+
+    Send {ENTER}
+
+    KeyWait , z, D   
+    Sleep 200
+
+;    Send {ENTER}
+
+; --------------------
+;    MsgBox, 4,CHECK VALUES, OK to Add Way bill ?
+;
+;    IfMsgBox NO   ; PRINT NEXT BILL
+;    {
+;       billEntry += 1
+;       Click ,WU, 9
+;       Sleep 1000
+;       Click 267, 388 ;305, 368 ;
+
+;       Send {End}
+;       Send {Shift Down}
+;       Send {Home}
+;       Send {Shift Up}
+
+;       Continue
+;    }
+
+;==============================
+; code to add bill
+;==============================
+
+Click WD 9
+Sleep 1000   
+Click 464,769  ;to click on Generate Waybill  405, 634
+Sleep 100
+Click 664, 769 
+Sleep 2000
+Send {Enter}
+
+LOOP
+{
+  IfWinExist, 37
+    break
+  else
+    Sleep 1000
+}
+
+Sleep 1000
+MsgBox, 4,PRINT / SAVE, YES to print. No to SAVE
+IfMsgBox NO   ; 
+  {
+
+IfWinExist, 37  ;
+{
+ WinActivate   ;
+ Sleep 500
+}
+
+
+   Sleep 500
+   Click  594, 566    
+   Sleep 500
+   Send {Ctrl Down}S{Ctrl Up}
+;   Send {Ctrl Down}{Shift Down}s{Ctrl Up}{Shift Up}
+    Sleep 1200
+
+   StringReplace, billNo, fields4,/
+   Send %billNo%
+   Sleep 1000
+   Send {Enter}
+
+  }
+else
+{
+
+IfWinExist, 37  ;
+{
+ WinActivate   ;
+ Sleep 300
+}
+
+
+
+   Click  494, 366    
+   Sleep 100
+
+ ;  Click WD 4  ;
+ ;  Sleep 500  ;
+   
+
+   Send ^p
+   Sleep 1500
+   Send {Enter}
+
+}
+
+
+;--------------------------------------------------
+KeyWait , z, D   ; PRESS Z TO go to next bill
+Send !{F4}
+Sleep 500
+IfWinExist, Mozilla Firefox  ;
+{
+ WinActivate   
+}
+billEntry += 1
+
+} 
+
+return 
+
+;=================  TO GET REPRINT SCREEN OF THE THE DAY  WINKEY + r
+
+
+#IfWinActive Mozilla Firefox
+#r::   ; GO TO REPRINT FORM PAGE OF THAT DAY
+Click WU 10
+MouseMove, 332, 197
+Sleep 1000
+Click 356, 298
+Sleep 3000
+#y::
+;----
+Send {TAB 5}
+Send {Down 2}
+Send {Enter}
+
+Send {TAB 2}
+Send %fields4%   
+
+
+Send {TAB 2}
+Send %A_DD%%A_MM%%A_YYYY%
+
+Send {TAB}
+Send %A_DD%%A_MM%%A_YYYY%
+
+Send {TAB}
+
+;---
+return
+
+
+;========================  WINKEY + B  =================
+
+#b::   ; open waybill screen any time
+Click WU 50
+Sleep 500
+MouseMove, 332, 197
+sleep 600
+Click 345, 232
+Sleep 2000
+  Send {TAB 5}
+  Send {Space}
+
+Sleep 1500
+  Send {TAB 2}
+  Send {Space}
+
+;Click 293, 398
+return
+
+
+;====================  WINKEY + Q TO CANCELL A BILL  =======
+
+
+#q::    ; CANCELLATION OF WAY BILL
+Click WU 10
+MouseMove, 332, 197
+Sleep 1000
+Click 396, 321  ; CLICK ON CACELL BILL
+Sleep 3000
+Send {Down 2}
+Send {Tab}
+Send {Ctrl Down}v{Ctrl Up}
+Sleep 2000
+Click 457, 481
+Sleep 1000
+Click 457, 481
+Send wrong entry
+Send {Tab}
+return
+#IfWinActive
+
+
+;==================== WINKEY + H HELP INFO  =============
+
+#h::
+  MsgBox, HOTKEYS, #Z #C #R #Q #B #V #H #N #S #X #t #p
+
+
+
+
+;==================== VILLAGES =============
+::AKV::AKAVEEDU
+::NDL::NANDYAL
+::MDN::MADANAPALLI
+::MRP::MARRIPADU
+
+::ATK::ATMAKUR
+::KDP::KADAPA
+::JML::JAMMALAMADUGU
+::vld::VELIDENDLA
+::ANT::ANANTAPUR
+::SHD::SIMHADRIPURAM
+::KRJ::KRAJUPALEM
+::PLM::PALAMANERU
+::RJP::RAJAMPET
+::NRL::NARPALA
+::KLN::KALYANADURG
+::RYD::RAYADURG
+::TSD::T_SUNDUPALLE
+::TNG::TANAGALA
+::BDM::BUDAMARSU
+::PN::PANYAM
+::RDV::RUDRAVARAM
+::PRP::PARNAPALLE
+::NHN::NEHRU NAGAR
+::JTR::JUTUR
+
+::BKT::BKOTHAKOTA
+::KPT::KAPPATRALA
+::NGL::NAGULADINNE
+::TRG::THARIGONDA
+::SD::SADUM
+::KTL::KOWTHALAM
+::HDP::HINDUPUR
+::YDK::YADIKI
+::PLS::PALASAMUDRAM
+::BLK::BILAKALA_GUDURU
+::BNG::BANAGANAPALLI
+::CGL::CHAGALAMARRI
+::BYN::BOYANAPALLI
+::OTM::ONTIMITTA
+::PLP::PULLAMPETA
+::SRV::SIRIVELLA
+::ALM::ALAMUR
+::SJM::SANJAMALA
+::STJ::SANTHAJUTUR
+::PGN::PUNGANUR
+::DVR::DUVVUR
+::MDK::MYDUKUR
+::GJL::GAJULAPALLE
+::VLG::VELUGODU
+::PML::PAMULAPADU
+::KLK::KALAKADA
+::PPR::PAPIREDDYPALLE
+::KDR::KADIRI
+::DRP::DORNIPADU
+::JLL::JILLELLA
+::VNG::VENGALAREDDYPETA
+::CLM::CHILAMATHURU
+::DDW::DADDAWADA
+::KSS::KRISHNAMSETTY PALLE
+::ALG::ALLAGADDA
+::KVL::KOVELAKUNTLA
+::IJ::IEEJA
+::PDT::PRODDATUR
+::RMS::RAMASAMUDRAM
+::KND::KONIDEDU
+::ABL::ABDULLAPURAM
+::SML::SOMALA
+::URV::URAVAKONDA
+::DDV::DADDAVADA
+::HL::HALVI
+::MDP::MUNDLAPADU
+::GDV::GADIVEMULA
+::PSR::PESARAVAI
+::GVD::GOVINDAPALLE
+::AMR::AMARAPURAM
+::CNS::CHINNAMSETTY PALLE
+::NS::NOSSAM
+::NRY::NARAYANA PET
+::MDD::MANDODDI
+::PDR::PANDURANGAPURAM
+::TDP::TADIPATRI
+::LBN::LBNAGAR
+::PLV::PULIVENDULA
+::RYC::RAYACHOTI
+::VPL::VEMPALLI
+::KZP::KAZIPET
+::RKD::R KODURU
+::KSG::KOSIGI
+::TGB::TUNGABHADRA
+::CNM::CHINNA MANDEM
+::PGD::PAGIDALA
+::NDK::NANDIKOTKUR
+::ADN::ADONI
+::PNM::PENUMURU
+::MTL::MUTYALAPADU
+::VLN::VELPANUR
+::VKT::VENKATAPURAM
+::SRG::SRI RANGA PURAM
+::YRV::YERRAVALLI
+::RMK::RAMAKUPPAM
+::VGL::VENGALAREDDYPETA
+::PNM::PENUMURU
+::GRK::GURRAMKONDA
+::VLN::VELPANUR
+::VKT::VENKATAPURAM
+::ZP::p@ssw0rd
+::SRG::SRI_RANGAPUR
+::YRG::YERRAGUNTLA
+::NNP::NUNEPALLE
+::PBR::PEBBAIR
+::RJL::RAJOLI
+::GVR::GOVARDHANAGIRI
+::STN::SANTINAGAR
+::PTL::PENTALAVALLI
+::KDD::KODHANDAPUR
+::KRN::KURNOOL
+::NLG::NALLAGATLA
+::NGP::NAGAMPALLI
+::bhd::BRAMHADEVAM
+::PRM::PORUMAMILLA
+::BDV::BADVEL
+::GDL::GIDDALUR
+::KNK::KANIKALATHOPU
+::KMR::KOMAROLU
+::KSP::KRISHNAM_SETTY_PALLI
+::GSD::GOSPADU
+::MLK::MOLAKALACHERUVU
+::CDP::CHOWDEPALLI
+
+
+;===============================  VEHICLES ==============
+::X19::AAQ6219
+::X16::ATQ6616
+::X29::AP21U5029
+::X88::AP21U8188
+::X49::AP16U6649
+::X97::AP26U7797
+::X30::AP21W2430
+::X39::AP21W4939
+::X87::AP21X1087
+::T49::AP21TT1249
+
+::ZT527::AP21T527
+::ZU279::AP21U279
+::ZU501::AP21U501
+::ZV279::AP21V279
+::Z1U27::AP21U27
+::Z0133::AP21W0133
+::Z0245::AP16W0245
+::Z0606::AP04U0606
+::Z0745::AP16W0745
+::Z0953::AP04T0953
+::Z1039::AP21W1039
+::Z1124::AP21U1124
+::Z1256::AP21U1256
+::Z1331::AP21W01331
+::Z1379::AP04U1379
+::Z1414::AP21T1414
+::Z1566::AP21W1566
+::Z1652::AHK1652
+::Z1773::AP16T1773
+::Z1879::AP05X1879
+::Z1895::AP04U1895
+::Z1959::AP16TT1959
+::Z2255::AP21T2255
+::Z2259::AP21W2259
+::Z2286::AP04U2286
+::Z2345::AP04U2345
+::Z2480::AP21W2480
+::Z2619::AP21U2619
+::Z2738::APD2738
+::Z2826::AP21U2826
+::Z3078::AP21U3078
+::Z3141::AP21U3141
+::Z3225::AP21U3225
+::Z3286::AP21U3286
+::Z3311::AP21U3311
+::Z3436::AEK3436
+::Z3446::AP21T3446
+::Z3538::AP21V3538
+::Z3758::AP21U3758
+::Z3778::AP21V3778
+::Z3779::AP21U3779
+::Z3789::AP21T3789
+::Z4055::AP21U4055
+::Z4092::ADQ4092
+::Z4104::AP21U4104
+::Z4111::AP21U4111
+::Z4168::AP21U4168
+::Z4292::AAQ4292
+::Z4379::AP21U4379
+::Z4509::AP21U4509
+::Z4559::AP21TX4559
+::Z4566::AP21U4566
+::Z4849::AP221T4849
+::Z4887::AP21U4887
+::Z5024::AP21U5024
+::Z5272::AP02V5272
+::Z5666::ADQ5666
+::Z5688::AP21T5688
+::Z5697::AP02T5697
+::Z5858::AP21U5858
+::Z6059::AP16T6059
+::Z6111::AP16T6111
+::Z6219::AAQ6219
+::Z6287::AP16TX6287
+::Z6289::AP16TX6289
+::Z6397::AP16X6397
+::Z6616::ATQ6616
+::Z6649::AP16U6649
+::Z6746::AP16U6746
+::Z6800::AP04T6800
+::Z6848::AP16U6848
+::Z6966::AP21U6966
+::Z6982::AP21U6982
+::ZD::DMADHURAOCORP
+::Z6999::AP28U6999
+::ZDD::DMADHURAO
+::Z7012::AP04T7012
+::Z7412::AP04T7412
+::Z7578::AP21U7578
+::Z7593::AP16U7593
+::Z7693::AP16U7693
+::Z7797::AP26U7797
+::Z8188::AP21U8188
+::Z8266::AP03T8266
+::Z8386::AP21T8386
+::Z8462::AP21U8462
+::Z8949::AP11T8949
+::Z9097::AP16TT9097
+::Z9110::ATQ9110
+::Z9131::AP21W9131
+::Z9599::AP21T9599
+::Z9779::AP16T9779
+::Z9829::AP16W9829
+::Z9937::AP16U9937
+::Z9987::AP16U9987
